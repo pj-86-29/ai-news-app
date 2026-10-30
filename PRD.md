@@ -65,7 +65,7 @@
 
 ## 6. 데이터 모델
 - `categories`: id, name(unique), sortOrder, createdAt
-- `articles`: id, url(unique), source, titleOriginal, titleKo, summaryKo, categoryId(nullable = 미분류), thumbnailUrl, publishedAt, notionPageId(nullable), createdAt
+- `articles`: id, url(unique), source, titleOriginal, titleKo, summaryKo, categoryId(nullable = 미분류), author(nullable), thumbnailUrl, publishedAt, notionPageId(nullable), createdAt
 
 ## 7. API
 | 메서드 | 경로 | 설명 |
