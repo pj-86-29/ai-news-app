@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 초기 단계입니다. Next.js 스캐폴드와 의존성만 설치되어 있고 앱 코드는 아직 없습니다. 요구사항, 데이터 모델, API 라우트, 구현 순서는 `PRD.md`(한국어)가 기준입니다. 무언가를 만들기 전에 반드시 읽으세요. 작업은 PRD 12절의 순서대로 한 단계씩 진행하며, 사용자가 말하기 전에는 앱 코드를 작성하지 않기로 했습니다.
 
+UI(화면 구성, Tailwind 스타일, 컴포넌트 명세, 상태별 화면)를 만들거나 수정할 때는 `ui.md`를 반드시 읽고 따르세요. UI 가이드는 `ui.md`가 기준입니다.
+
 ## 명령어
 
 - `npm run dev` – 개발 서버
