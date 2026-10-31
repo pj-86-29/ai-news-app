@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { SignInButton, UserButton, useSession } from "@clerk/nextjs";
 
 // 서버가 아니라 브라우저의 Clerk 세션을 기준으로 화면을 나눈다.
@@ -35,10 +36,20 @@ export function HomeAuth() {
         </h1>
         <UserButton />
       </header>
-      <main className="flex flex-1 items-center justify-center text-zinc-600 dark:text-zinc-400">
-        {session.status === "pending"
-          ? "추가 설정이 필요한 세션입니다. Clerk 대시보드의 세션 작업 설정을 확인하세요."
-          : "로그인되었습니다."}
+      <main className="flex flex-1 flex-col items-center justify-center gap-4 text-zinc-600 dark:text-zinc-400">
+        {session.status === "pending" ? (
+          "추가 설정이 필요한 세션입니다. Clerk 대시보드의 세션 작업 설정을 확인하세요."
+        ) : (
+          <>
+            <p>로그인되었습니다.</p>
+            <Link
+              href="/dashboard"
+              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+            >
+              대시보드로 이동
+            </Link>
+          </>
+        )}
       </main>
     </>
   );
