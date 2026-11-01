@@ -1,6 +1,6 @@
 import { asc, desc, eq, getTableColumns, isNull, sql } from "drizzle-orm";
 import { db } from "./index";
-import { articles, categories } from "./schema";
+import { articles, categories, type NewArticle } from "./schema";
 
 // undefined = 전체, "uncategorized" = 미분류, number = 카테고리 id
 export type CategoryFilter = number | "uncategorized" | undefined;
@@ -27,6 +27,20 @@ export async function getArticles(filter: CategoryFilter) {
     .leftJoin(categories, eq(articles.categoryId, categories.id))
     .where(where)
     .orderBy(sql`${articles.publishedAt} desc nulls last`, desc(articles.createdAt));
+}
+
+// url이 이미 있는 기사는 건너뛰고, 실제로 추가된 건수를 반환한다.
+export async function insertNewArticles(rows: NewArticle[]) {
+  // 같은 요청 안에서 URL이 겹치면 한 건만 남긴다.
+  const unique = [...new Map(rows.map((row) => [row.url, row])).values()];
+  if (unique.length === 0) return 0;
+
+  const inserted = await db
+    .insert(articles)
+    .values(unique)
+    .onConflictDoNothing({ target: articles.url })
+    .returning({ id: articles.id });
+  return inserted.length;
 }
 
 export type ArticleWithCategory = Awaited<ReturnType<typeof getArticles>>[number];

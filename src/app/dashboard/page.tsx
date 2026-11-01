@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
+import { Show, UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { CategoryBar } from "@/components/category-bar";
+import { FetchNewsButton } from "@/components/fetch-news-button";
 import { NewsCard } from "@/components/news-card";
 import {
   getArticles,
@@ -31,7 +32,12 @@ export default function DashboardPage({
           <Link href="/dashboard" className="text-xl font-bold tracking-tight">
             AI 뉴스 수집기
           </Link>
-          <UserButton />
+          <Show when="signed-in">
+            <div className="flex items-center gap-3">
+              <FetchNewsButton />
+              <UserButton />
+            </div>
+          </Show>
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
