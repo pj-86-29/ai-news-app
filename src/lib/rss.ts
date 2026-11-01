@@ -31,17 +31,11 @@ const parser = new Parser<Record<string, never>, CustomItem>({
   },
 });
 
+// 번역·요약·분류 전의 수집 결과. titleKo, summaryKo, categoryId는 Claude 처리 후에 채운다.
 export type FeedArticle = Pick<
   NewArticle,
-  | "url"
-  | "source"
-  | "titleOriginal"
-  | "titleKo"
-  | "summaryKo"
-  | "author"
-  | "thumbnailUrl"
-  | "publishedAt"
->;
+  "url" | "source" | "titleOriginal" | "author" | "thumbnailUrl" | "publishedAt"
+> & { excerpt: string };
 
 export type FetchResult = {
   articles: FeedArticle[];
@@ -99,9 +93,7 @@ async function fetchFeed(
       url,
       source: feed.source,
       titleOriginal: title,
-      // 번역·요약 단계(Claude)가 붙기 전까지는 원문을 임시로 채운다.
-      titleKo: title,
-      summaryKo: truncate(excerpt, EXCERPT_MAX_LENGTH),
+      excerpt: truncate(excerpt, EXCERPT_MAX_LENGTH),
       author: item.creator ?? null,
       thumbnailUrl: findThumbnail(item, html),
       publishedAt: published,

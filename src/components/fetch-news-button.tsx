@@ -32,12 +32,16 @@ export function FetchNewsButton() {
         });
         return;
       }
+      const base =
+        data.added > 0
+          ? `새 뉴스 ${data.added}건을 추가했어요.`
+          : "새로운 뉴스가 없어요.";
       setNotice({
         kind: "success",
         text:
-          data.added > 0
-            ? `새 뉴스 ${data.added}건을 추가했어요.`
-            : "새로운 뉴스가 없어요.",
+          data.failedArticles > 0
+            ? `${base} ${data.failedArticles}건은 처리하지 못했어요.`
+            : base,
       });
       startRefresh(() => router.refresh());
     } catch {

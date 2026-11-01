@@ -1,4 +1,4 @@
-import { asc, desc, eq, getTableColumns, isNull, sql } from "drizzle-orm";
+import { asc, desc, eq, getTableColumns, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "./index";
 import { articles, categories, type NewArticle } from "./schema";
 
@@ -27,6 +27,16 @@ export async function getArticles(filter: CategoryFilter) {
     .leftJoin(categories, eq(articles.categoryId, categories.id))
     .where(where)
     .orderBy(sql`${articles.publishedAt} desc nulls last`, desc(articles.createdAt));
+}
+
+// 이미 저장된 url만 골라낸다. Claude 호출 전에 중복을 걸러내는 데 쓴다.
+export async function getExistingUrls(urls: string[]) {
+  if (urls.length === 0) return new Set<string>();
+  const rows = await db
+    .select({ url: articles.url })
+    .from(articles)
+    .where(inArray(articles.url, urls));
+  return new Set(rows.map((row) => row.url));
 }
 
 // url이 이미 있는 기사는 건너뛰고, 실제로 추가된 건수를 반환한다.
