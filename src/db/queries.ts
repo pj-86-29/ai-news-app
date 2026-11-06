@@ -1,4 +1,4 @@
-import { asc, desc, eq, getTableColumns, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, getTableColumns, inArray, isNull, sql } from "drizzle-orm";
 import { db } from "./index";
 import { articles, categories, type NewArticle } from "./schema";
 
@@ -54,3 +54,22 @@ export async function insertNewArticles(rows: NewArticle[]) {
 }
 
 export type ArticleWithCategory = Awaited<ReturnType<typeof getArticles>>[number];
+
+export async function getArticleById(id: number) {
+  const [row] = await db
+    .select({ ...getTableColumns(articles), categoryName: categories.name })
+    .from(articles)
+    .leftJoin(categories, eq(articles.categoryId, categories.id))
+    .where(eq(articles.id, id));
+  return row;
+}
+
+// 아직 Notion에 저장되지 않은 기사에만 페이지 id를 기록한다. 기록됐으면 true.
+export async function markNotionSaved(id: number, notionPageId: string) {
+  const rows = await db
+    .update(articles)
+    .set({ notionPageId })
+    .where(and(eq(articles.id, id), isNull(articles.notionPageId)))
+    .returning({ id: articles.id });
+  return rows.length > 0;
+}

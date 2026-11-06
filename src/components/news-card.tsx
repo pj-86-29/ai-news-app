@@ -1,4 +1,5 @@
 import type { ArticleWithCategory } from "@/db/queries";
+import { SaveNewsButton } from "./save-news-button";
 
 const dateParts = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul",
@@ -68,11 +69,10 @@ export function NewsCard({ article }: { article: ArticleWithCategory }) {
         >
           원문 보기
         </a>
-        {article.notionPageId && (
-          <span className="rounded-lg bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700">
-            저장됨
-          </span>
-        )}
+        <SaveNewsButton
+          articleId={article.id}
+          saved={!!article.notionPageId}
+        />
       </div>
     </article>
   );
