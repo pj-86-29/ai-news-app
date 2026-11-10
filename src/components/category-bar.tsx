@@ -30,26 +30,33 @@ function Chip({
 export function CategoryBar({
   categories,
   selected,
+  keyword = "",
 }: {
   categories: Category[];
   selected: CategoryFilter;
+  keyword?: string;
 }) {
+  // 검색어가 있으면 카테고리를 바꿔도 유지한다.
+  const href = (category?: string | number) => {
+    const params = new URLSearchParams();
+    if (category !== undefined) params.set("category", String(category));
+    if (keyword) params.set("q", keyword);
+    const qs = params.toString();
+    return qs ? `/dashboard?${qs}` : "/dashboard";
+  };
+
   return (
     <nav aria-label="카테고리" className="flex flex-wrap items-center gap-2 py-4">
-      <Chip href="/dashboard" selected={selected === undefined}>
+      <Chip href={href()} selected={selected === undefined}>
         전체
       </Chip>
       {categories.map((c) => (
-        <Chip
-          key={c.id}
-          href={`/dashboard?category=${c.id}`}
-          selected={selected === c.id}
-        >
+        <Chip key={c.id} href={href(c.id)} selected={selected === c.id}>
           {c.name}
         </Chip>
       ))}
       <Chip
-        href="/dashboard?category=uncategorized"
+        href={href("uncategorized")}
         selected={selected === "uncategorized"}
       >
         미분류

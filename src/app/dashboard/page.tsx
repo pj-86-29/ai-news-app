@@ -6,7 +6,11 @@ import { auth } from "@clerk/nextjs/server";
 import { CategoryBar } from "@/components/category-bar";
 import { FetchNewsButton } from "@/components/fetch-news-button";
 import { NewsCard } from "@/components/news-card";
+import { SearchBar } from "@/components/search-bar";
+import { Pagination } from "@/components/pagination";
 import {
+  PAGE_SIZE,
+  countArticles,
   getArticles,
   getCategories,
   type CategoryFilter,
@@ -20,6 +24,17 @@ function parseFilter(value: string | string[] | undefined): CategoryFilter {
   if (value === "uncategorized") return "uncategorized";
   if (typeof value === "string" && /^\d+$/.test(value)) return Number(value);
   return undefined;
+}
+
+function parsePage(value: string | string[] | undefined): number {
+  if (typeof value === "string" && /^\d{1,6}$/.test(value)) {
+    return Math.max(1, Number(value));
+  }
+  return 1;
+}
+
+function parseKeyword(value: string | string[] | undefined): string {
+  return typeof value === "string" ? value.trim().slice(0, 100) : "";
 }
 
 export default function DashboardPage({
@@ -70,21 +85,36 @@ async function DashboardContent({
     );
   }
 
-  const filter = parseFilter((await searchParams).category);
+  const params = await searchParams;
+  const filter = parseFilter(params.category);
+  const keyword = parseKeyword(params.q);
 
-  const [categories, articles] = await Promise.all([
+  const [categories, total] = await Promise.all([
     getCategories(),
-    getArticles(filter),
+    countArticles(filter, keyword),
   ]);
+  // 범위를 벗어난 페이지 번호는 마지막 페이지로 맞춘다.
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(parsePage(params.page), totalPages);
+  const articles = await getArticles(filter, keyword, page);
 
   return (
     <>
-      <CategoryBar categories={categories} selected={filter} />
+      <div className="flex flex-wrap items-center justify-between gap-x-4">
+        <CategoryBar
+          categories={categories}
+          selected={filter}
+          keyword={keyword}
+        />
+        <SearchBar keyword={keyword} category={filter} />
+      </div>
       {articles.length === 0 ? (
         <p className="py-20 text-center text-slate-500">
-          {filter === undefined
-            ? "아직 수집한 뉴스가 없어요. '뉴스 가져오기'를 눌러 시작해 보세요."
-            : "이 카테고리에는 아직 뉴스가 없어요."}
+          {keyword
+            ? `'${keyword}'에 해당하는 뉴스가 없어요.`
+            : filter === undefined
+              ? "아직 수집한 뉴스가 없어요. '뉴스 가져오기'를 눌러 시작해 보세요."
+              : "이 카테고리에는 아직 뉴스가 없어요."}
         </p>
       ) : (
         <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -93,6 +123,12 @@ async function DashboardContent({
           ))}
         </div>
       )}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        category={filter}
+        keyword={keyword}
+      />
     </>
   );
 }

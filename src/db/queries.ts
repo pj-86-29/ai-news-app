@@ -1,4 +1,16 @@
-import { and, asc, desc, eq, getTableColumns, inArray, isNull, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  ilike,
+  inArray,
+  isNull,
+  or,
+  sql,
+} from "drizzle-orm";
 import { db } from "./index";
 import { articles, categories, type NewArticle } from "./schema";
 
@@ -13,20 +25,56 @@ export async function getCategories() {
 }
 
 // 최신순: 발행일 내림차순(발행일이 없으면 뒤로), 같으면 수집일 내림차순
-export async function getArticles(filter: CategoryFilter) {
-  const where =
+export const PAGE_SIZE = 6;
+
+function buildWhere(filter: CategoryFilter, keyword?: string) {
+  const categoryWhere =
     filter === undefined
       ? undefined
       : filter === "uncategorized"
         ? isNull(articles.categoryId)
         : eq(articles.categoryId, filter);
 
+  // 한국어 제목·요약과 영어 원제에서 대소문자 구분 없이 찾는다. LIKE 와일드카드는 이스케이프한다.
+  const pattern = keyword
+    ? `%${keyword.replace(/[\\%_]/g, "\\$&")}%`
+    : undefined;
+  const keywordWhere = pattern
+    ? or(
+        ilike(articles.titleKo, pattern),
+        ilike(articles.summaryKo, pattern),
+        ilike(articles.titleOriginal, pattern),
+      )
+    : undefined;
+  return and(categoryWhere, keywordWhere);
+}
+
+// 페이지는 1부터 시작한다. id를 마지막 정렬 기준으로 두어 페이지 경계가 흔들리지 않게 한다.
+export async function getArticles(
+  filter: CategoryFilter,
+  keyword?: string,
+  page = 1,
+) {
   return db
     .select({ ...getTableColumns(articles), categoryName: categories.name })
     .from(articles)
     .leftJoin(categories, eq(articles.categoryId, categories.id))
-    .where(where)
-    .orderBy(sql`${articles.publishedAt} desc nulls last`, desc(articles.createdAt));
+    .where(buildWhere(filter, keyword))
+    .orderBy(
+      sql`${articles.publishedAt} desc nulls last`,
+      desc(articles.createdAt),
+      desc(articles.id),
+    )
+    .limit(PAGE_SIZE)
+    .offset((page - 1) * PAGE_SIZE);
+}
+
+export async function countArticles(filter: CategoryFilter, keyword?: string) {
+  const [row] = await db
+    .select({ count: count() })
+    .from(articles)
+    .where(buildWhere(filter, keyword));
+  return row.count;
 }
 
 // 이미 저장된 url만 골라낸다. Claude 호출 전에 중복을 걸러내는 데 쓴다.
