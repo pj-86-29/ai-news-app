@@ -1,4 +1,5 @@
 import type { ArticleWithCategory } from "@/db/queries";
+import { DeleteNewsButton } from "./delete-news-button";
 import { SaveNewsButton } from "./save-news-button";
 
 const dateParts = new Intl.DateTimeFormat("ko-KR", {
@@ -19,7 +20,9 @@ export function NewsCard({ article }: { article: ArticleWithCategory }) {
   const { publishedAt } = article;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+    <article className="relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+      <DeleteNewsButton articleId={article.id} />
+
       {article.thumbnailUrl && (
         // RSS 썸네일은 출처가 제각각이라 next/image 대신 일반 img를 쓴다.
         // eslint-disable-next-line @next/next/no-img-element

@@ -121,3 +121,16 @@ export async function markNotionSaved(id: number, notionPageId: string) {
     .returning({ id: articles.id });
   return rows.length > 0;
 }
+
+export async function deleteArticle(id: number) {
+  try {
+    const rows = await db
+      .delete(articles)
+      .where(eq(articles.id, id))
+      .returning({ id: articles.id });
+    return rows.length > 0;
+  } catch (error) {
+    console.error("뉴스 삭제 실패", error);
+    throw error;
+  }
+}
