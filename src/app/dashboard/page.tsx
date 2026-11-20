@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { CategoryBar } from "@/components/category-bar";
 import { FetchNewsButton } from "@/components/fetch-news-button";
 import { NewsCard } from "@/components/news-card";
+import { NewsCountBadge } from "@/components/news-count-badge";
 import { SearchBar } from "@/components/search-bar";
 import { Pagination } from "@/components/pagination";
 import {
@@ -89,9 +90,10 @@ async function DashboardContent({
   const filter = parseFilter(params.category);
   const keyword = parseKeyword(params.q);
 
-  const [categories, total] = await Promise.all([
+  const [categories, total, allCount] = await Promise.all([
     getCategories(),
     countArticles(filter, keyword),
+    countArticles(undefined),
   ]);
   // 범위를 벗어난 페이지 번호는 마지막 페이지로 맞춘다.
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -100,6 +102,7 @@ async function DashboardContent({
 
   return (
     <>
+      <NewsCountBadge count={allCount} />
       <div className="flex flex-wrap items-center justify-between gap-x-4">
         <CategoryBar
           categories={categories}
@@ -136,7 +139,7 @@ async function DashboardContent({
 function DashboardSkeleton() {
   return (
     <>
-      <div className="h-[4.25rem]" />
+      <div className="h-[6.25rem]" />
       <div className="grid animate-pulse grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }, (_, i) => (
           <div
