@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { CategoryBar } from "@/components/category-bar";
 import { FetchNewsButton } from "@/components/fetch-news-button";
 import { NewsCard } from "@/components/news-card";
+import { NewsGridSkeleton } from "@/components/news-card-skeleton";
 import { NewsCountBadge } from "@/components/news-count-badge";
 import { SearchBar } from "@/components/search-bar";
 import { Pagination } from "@/components/pagination";
@@ -140,14 +141,7 @@ function DashboardSkeleton() {
   return (
     <>
       <div className="h-[6.25rem]" />
-      <div className="grid animate-pulse grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }, (_, i) => (
-          <div
-            key={i}
-            className="h-72 rounded-xl border border-slate-200 bg-white"
-          />
-        ))}
-      </div>
+      <NewsGridSkeleton />
     </>
   );
 }
