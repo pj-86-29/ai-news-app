@@ -35,7 +35,7 @@ export function DeleteNewsButton({ articleId }: { articleId: number }) {
         onClick={handleClick}
         disabled={loading}
         aria-label="뉴스 삭제"
-        className="flex size-8 items-center justify-center rounded-full bg-white/90 text-slate-500 shadow-sm hover:bg-white hover:text-red-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-50"
+        className="flex size-8 items-center justify-center rounded-full bg-white/90 text-slate-500 shadow-sm transition-opacity duration-200 hover:bg-white md:opacity-0 md:group-hover:opacity-100 md:focus-visible:opacity-100 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-50"
       >
         <svg
           viewBox="0 0 20 20"
