@@ -124,3 +124,8 @@ src/
 
 - `PRD.md`: 요구사항, 데이터 모델, API, 구현 순서
 - `ui.md`: 화면 구성과 Tailwind 스타일 가이드
+
+## 사용한 플러그인
+
+- Frontend Design: UI 디자인 품질 향상
+- commit-commands: 깃 워크플로 자동화
